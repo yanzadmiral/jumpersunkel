@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+
 class CreateLogDataApisTable extends Migration
 {
     /**
@@ -15,6 +16,9 @@ class CreateLogDataApisTable extends Migration
     {
         Schema::create('log_data_apis', function (Blueprint $table) {
             $table->id();
+            $table->string('str_unix', 100);
+            $table->text('raw_request')->nullable();
+            $table->text('raw_respons')->nullable();
             $table->timestamps();
         });
     }

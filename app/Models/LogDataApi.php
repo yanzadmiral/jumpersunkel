@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class LogDataApi extends Model
 {
     use HasFactory;
+    protected $fillable = ['str_unix','raw_request','raw_respons'];
 }

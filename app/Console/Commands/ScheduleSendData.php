@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
+use App\Models\LogDataApi;
 
 class ScheduleSendData extends Command
 {
@@ -20,8 +21,10 @@ class ScheduleSendData extends Command
      *
      * @var string
      */
-    protected $description = 'kirim data ke API';
+    protected $description = 'kirim data ke API baca DB Query';
 
+    private $linklogin = 'http://10.109.9.12:4000/api/user/login';
+    private $linkkirim = 'http://10.109.9.12:4000/api/pelindo/trx';
     /**
      * Create a new command instance.
      *
@@ -30,9 +33,33 @@ class ScheduleSendData extends Command
     public function __construct()
     {
         parent::__construct();
+    }
+    public function apihargologin()
+    {
+        $response = Http::post($this->linklogin,[
+            'username' => 'sundakelapa',
+            'password' => 'sundakelapa',
+        ]);
+        $token = $response->json();
+        return $token;
+    }
+    public function apihargokirim($token,$datakirim)
+    {        
+        $response2 = Http::withToken($token)->post($this->linkkirim,$datakirim);
+
+        return $response2->json();
+    }
+    /**
+     * Execute the console command.
+     *
+     * @return int
+     */
+    public function handle()
+    {
+        //$token = $this->apihargologin();
 
         $data = \DB::select("SELECT * from trs where date(TimeIn) >= date('2021-02-20') limit 2");
-
+        
         foreach ($data as $key => $value) {
 
             $datec = date_create($value->TimeIn);
@@ -53,27 +80,9 @@ class ScheduleSendData extends Command
                 "id_card"=> $value->CardNo == '' ? "1" : "$value->CardNo",
                 "etoll_hash"=> $value->ID
             ];
-            print_r($datakirim);
-            // $response = Http::post('http://10.109.9.12:4000/api/user/login',[
-            //     'username' => 'sundakelapa',
-            //     'password' => 'sundakelapa',
-            // ]);
-            // $token = $response->json();
-            
-            // $response2 = Http::withToken($token['token'])->post('http://10.109.9.12:4000/api/pelindo/trx',$datakirim);
-        
-            // print_r(json_encode($response2->json()));
+            //$response = apihargokirim($token['token'],$datakirim);
+            //LogDataApi::create(['str_unix' => $a,'raw_request' => $b,'raw_respons' => $c,]);
+            //print_r(json_encode($response2));
         }
-
-    }
-
-    /**
-     * Execute the console command.
-     *
-     * @return int
-     */
-    public function handle()
-    {
-        return 0;
     }
 }
